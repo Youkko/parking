@@ -24,13 +24,15 @@ if [ "${DATABASE}" = "postgres" ]; then
   echo "Postgres is ready"
 fi
 
-# Ensure migrations folder exists
 if [ ! -d "migrations" ]; then
-  echo "Initializing Flask-Migrate..."
+  echo "Initializing Flask-Migrate (first run)..."
   flask db init
 fi
 
-echo "Running database migrations..."
+echo "Generating migration scripts if needed..."
+flask db migrate -m "auto migration" || echo "No new changes detected."
+
+echo "Applying database migrations..."
 flask db upgrade || {
   echo "Migration failed; database may be in use."
 }
