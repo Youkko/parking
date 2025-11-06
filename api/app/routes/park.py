@@ -54,24 +54,29 @@ def register_arrival():
         current_app.logger.exception("Failed to register arrival")
         return jsonify({"message": "Internal server error"}), 500
 
-@park.route('/depart', methods=['POST'])
-def register_departure():
+@park.route('/depart', methods=['PATCH'])
+def update_departure():
     data = request.get_json(silent=True)
     if not data or 'plate' not in data:
         return _bad_request("Field 'plate' is required")
 
     plate = data.get('plate').strip().upper()
     try:
-        # Busca registro aberto pela placa
         movement = Movement.query.filter_by(plate=plate, departure=None).first()
         if not movement:
             return jsonify({"message": "No active entry found for this plate"}), 404
 
         movement.departure = datetime.now(timezone.utc)
-        db.session.add(movement)
         db.session.commit()
-        return jsonify({"message": "Departure registered", "duration_seconds": movement.duration()}), 200
+
+        return jsonify({
+            "message": "Departure updated successfully",
+            "plate": movement.plate,
+            "departure_time": movement.departure.isoformat(),
+            "duration_seconds": movement.duration(),
+        }), 200
+
     except SQLAlchemyError:
         db.session.rollback()
-        current_app.logger.exception("Failed to register departure")
+        current_app.logger.exception("Failed to update parking stay data")
         return jsonify({"message": "Internal server error"}), 500
