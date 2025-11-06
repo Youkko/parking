@@ -3,16 +3,20 @@ services:
     build: ./api
     command: flask run --host=0.0.0.0 --port=5000
     volumes:
-      - ./api:/usr/src/app
+      - ./api:/usr/src/app:delegated
     ports:
-      - 5000:5000
+      - "5000:5000"
+    env_file:
+      - ./api/.env
     environment:
-      - DATABASE_URL=postgresql://hello_flask:hello_flask@db:5432/hello_flask_dev
-      - SQL_HOST=db
-      - SQL_PORT=5432
-      - DATABASE=postgres
+      - DATABASE_URL=${DATABASE_URL}
+      - SQL_HOST=${SQL_HOST}
+      - SQL_PORT=${SQL_PORT}
+      - DATABASE=${DATABASE}
     depends_on:
       - db
+    restart: unless-stopped
+
   db:
     image: postgres:16
     volumes:
@@ -21,5 +25,12 @@ services:
       - POSTGRES_USER=hello_flask
       - POSTGRES_PASSWORD=hello_flask
       - POSTGRES_DB=hello_flask_dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hello_flask -d hello_flask_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 volumes:
   postgres_data:
