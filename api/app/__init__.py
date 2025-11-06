@@ -41,8 +41,11 @@ def create_app(config_object: str | object = None) -> Flask:
         app.logger.setLevel(app.config.get('LOG_LEVEL', logging.INFO))
 
     # Register blueprints
-    from app.routes.auth import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint, url_prefix='/auth')
+    from app.routes.auth import auth
+    app.register_blueprint(auth, url_prefix='/auth')
+
+    from app.routes.park import park
+    app.register_blueprint(park, url_prefix='/park')
 
     # Flask CLI helpers
     @app.cli.command("create-db")

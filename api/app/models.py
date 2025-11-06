@@ -1,6 +1,10 @@
+import uuid
+from datetime import datetime, timezone
+from sqlalchemy.dialects.postgresql import UUID
 from app import db
 from argon2 import PasswordHasher
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
 
 ph = PasswordHasher()
 
@@ -10,6 +14,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     def __repr__(self):
         return f"<User id={self.id} email={self.email!r}>"
@@ -42,3 +47,26 @@ class User(db.Model):
                     db.session.rollback()
                 return True
             return False
+
+class Movement(db.Model):
+    __tablename__ = 'movements'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    plate = db.Column(db.String(20), nullable=False, index=True)
+    arrival = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    departure = db.Column(db.DateTime(timezone=True), nullable=True)  # null while vehicle is inside
+
+    def duration(self) -> float:
+        """
+        Returns the elapsed time in seconds.
+        If departure is None, it calculates to current time.
+        """
+        end_time = self.departure or datetime.now(timezone.utc)
+        delta = end_time - self.arrival
+        return delta.total_seconds()
+
+    def __repr__(self):
+        return (
+            f"<Movement id={self.id} plate={self.plate!r} "
+            f"arrival={self.arrival.isoformat()} departure={self.departure.isoformat() if self.departure else None}>"
+        )

@@ -1,2 +1,4 @@
 .env
 ./api/.env
+api/migrations
+api/migrations/**
