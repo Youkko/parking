@@ -41,6 +41,9 @@ def register():
 
 @auth.route('/login', methods=['POST'])
 def login():
+    """
+    Expected JSON: {"email": "...", "password": "..."}
+    """
     data = request.get_json(silent=True)
     if not data:
         return _bad_request("Invalid JSON payload")
@@ -50,7 +53,6 @@ def login():
     if not email or not password:
         return _bad_request("Both 'email' and 'password' are required")
 
-    #user = User.query.filter_by(email=email).first()
     user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
     if not user or not user.check_password(password):
         return jsonify({'message': 'Invalid credentials'}), 401
