@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import verify_jwt_in_request
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime, timezone
 from app import db
@@ -7,11 +7,16 @@ from app.models import Movement
 
 park = Blueprint('park', __name__)
 
+@park.before_request
+def require_jwt():
+    public_endpoints = ['park.list_movements']
+    if request.endpoint not in public_endpoints:
+        verify_jwt_in_request()
+
 def _bad_request(msg="Bad request"):
     return jsonify({"message": msg}), 400
 
 @park.route('/', methods=['GET'])
-@jwt_required()
 def list_movements():
     try:
         movements = Movement.query.order_by(Movement.arrival.desc()).all()
