@@ -1,4 +1,5 @@
 import type { TopBarProps } from '../../interfaces'
+import { useUser } from '../../contexts/User'
 import {
   Layout,
   Button,
@@ -23,10 +24,10 @@ const TopBar: React.FC<TopBarProps> = (
     handleLogout,
     handleEditUserInfo,
     showModal,
-    setLoginMode,
-    loggedInUser
+    setLoginMode
   }
 ) => {
+  const { userInfo } = useUser()
   const showRegisterDialog = () => {
     setLoginMode(false)
     showModal()
@@ -46,7 +47,6 @@ const TopBar: React.FC<TopBarProps> = (
     handleLogout()
   }
 
-  
   return (
     <Header
       style={{
@@ -61,7 +61,7 @@ const TopBar: React.FC<TopBarProps> = (
       <Content style={{ padding: 24 }}>
         <Title style={{ color: blue[4] }}>Binder's Parking</Title>
       </Content>
-      {!loggedInUser ? (
+      {!userInfo ? (
         <>
           <Button
             type="primary"
@@ -82,7 +82,7 @@ const TopBar: React.FC<TopBarProps> = (
         </>
       ) : (
         <>
-          <Text style={{ color: "#fff" }}>{loggedInUser.email}</Text>
+          <Text style={{ color: "#fff" }}>{userInfo.email}</Text>
           <Button
             icon={<EditOutlined />}
             onClick={showEditUserInfo}

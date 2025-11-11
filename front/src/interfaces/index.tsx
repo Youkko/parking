@@ -3,7 +3,6 @@ export interface TopBarProps {
   handleEditUserInfo: () => void
   showModal: () => void
   setLoginMode: (isLogin: boolean) => void
-  loggedInUser?: any
 }
 
 export interface ContentPanelProps {
@@ -16,6 +15,7 @@ export interface CredentialsPanelProps {
   onCancel: () => void
   isLoginMode: boolean
   visible: boolean
+  resetFieldsTrigger: number
 }
 
 export interface JwtPayload {
@@ -41,9 +41,22 @@ export interface LoginInfo {
   password: string
 }
 
+export interface LoginResponse {
+  access_token: string
+}
+
 export interface UserInfo {
   id: string
   email: string
   createdAt: string
   authorization: string
+}
+
+export interface UserProviderProps {
+  children: React.ReactNode
+}
+
+export interface UserContextType {
+  userInfo: UserInfo | null;
+  setUserInfo: React.Dispatch<React.SetStateAction<UserInfo | null>>;
 }

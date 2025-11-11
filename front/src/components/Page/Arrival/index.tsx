@@ -1,16 +1,11 @@
 import React from "react";
-
-const isUserLoggedIn = (): boolean => {
-  const loggedUser = localStorage.getItem("loggedUser");
-  return loggedUser !== null;
-};
+import { useUser } from '../../../contexts/User'
 
 const Arrival: React.FC = () => {
-  const logged = isUserLoggedIn();
-
+  const { userInfo } = useUser()
   return (
     <>
-      {logged ? (
+      {userInfo ? (
         <>Arrival page here!</>
       ) : (
         <>You must be authenticated to access this area.</>

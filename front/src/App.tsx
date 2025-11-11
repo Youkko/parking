@@ -1,10 +1,13 @@
-import React from 'react';
-import { App } from 'antd';
+import React from 'react'
+import { App } from 'antd'
+import { UserProvider } from './contexts/User'
 import MainLayout from './components/MainLayout'
 const BindersApp: React.FC = () => {
   return (
     <App>
-      <MainLayout />
+      <UserProvider>
+        <MainLayout />
+      </UserProvider>
     </App>
   )
 }

@@ -1,15 +1,15 @@
 import type { CredentialsPanelProps } from '../../interfaces'
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   Modal,
   Input,
   Typography,
   Space,
-} from "antd";
+} from "antd"
 import {
   UserOutlined,
-} from "@ant-design/icons";
-const { Text } = Typography;
+} from "@ant-design/icons"
+const { Text } = Typography
 
 const CredentialsPanel: React.FC<CredentialsPanelProps> = (
   {
@@ -18,11 +18,13 @@ const CredentialsPanel: React.FC<CredentialsPanelProps> = (
     onCancel,
     isLoginMode,
     visible,
+    resetFieldsTrigger
   }
 ) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordCfm, setPasswordConfirm] = useState("");
+  const [modal, contextHolder] = Modal.useModal()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [passwordCfm, setPasswordConfirm] = useState("")
 
   const getTitle = () => {
     return isLoginMode ? "Login" : "Register"
@@ -60,7 +62,7 @@ const CredentialsPanel: React.FC<CredentialsPanelProps> = (
   }
 
   const showMessage = (text: string) => {
-    Modal.info({
+    modal.info({
       title: getTitle(),
       content: <Text>{text}</Text>,
       okText: "Close",
@@ -71,37 +73,47 @@ const CredentialsPanel: React.FC<CredentialsPanelProps> = (
     onCancel()
   }
 
+  React.useEffect(() => {
+    if (visible) {
+      setEmail("");
+      setPassword("");
+    }
+  }, [resetFieldsTrigger, visible]);
+
   return (
-    <Modal
-      title={getTitle()}
-      open={visible}
-      onOk={loginOrRegister}
-      onCancel={handleCancel}
-      okText={getTitle()}
-      cancelText="Cancel"
-      centered
-    >
-      <Space direction="vertical" style={{ width: "100%" }}>
-        <Input
-          prefix={<UserOutlined />}
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          type="email"
-        />
-        <Input.Password
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {!isLoginMode ? (
-        <Input.Password
-          placeholder="PasswordConfirm"
-          value={passwordCfm}
-          onChange={(e) => setPasswordConfirm(e.target.value)}
-        />) : (null)}
-      </Space>
-    </Modal >
+    <>
+      <Modal
+        title={getTitle()}
+        open={visible}
+        onOk={loginOrRegister}
+        onCancel={handleCancel}
+        okText={getTitle()}
+        cancelText="Cancel"
+        centered
+      >
+        <Space direction="vertical" style={{ width: "100%" }}>
+          <Input
+            prefix={<UserOutlined />}
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+          />
+          <Input.Password
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {!isLoginMode ? (
+          <Input.Password
+            placeholder="PasswordConfirm"
+            value={passwordCfm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
+          />) : (null)}
+        </Space>
+      </Modal>
+      {contextHolder}
+    </>
   )
 }
 
