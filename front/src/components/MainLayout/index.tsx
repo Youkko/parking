@@ -6,6 +6,7 @@ import CredentialsPanel from '../CredentialsPanel'
 import ContentPanel from '../ContentPanel'
 import Dashboard from "../Page/Dashboard"
 import {
+  setAuthToken,
   login,
   register
 } from "../Api"
@@ -38,6 +39,7 @@ const MainLayout: React.FC = () => {
       }
       localStorage.setItem("userInfo", JSON.stringify(user))
       setUserInfo(user)
+      setAuthToken(user.authorization)
     }).catch((err) => {
       if (err.status === 401)
         showMessage(err.response.data.message, "Login error")
@@ -47,11 +49,19 @@ const MainLayout: React.FC = () => {
   }
 
   const handleRegisterUser = (email: string, password: string) => {
-    register({ email, password }).then().catch()
-    showMessage("Feature to register user coming soon!", "Register")
+    register({ email, password }).then((result) => {
+      showMessage(result.data.message, "Registration")
+      setIsModalVisible(false)
+    }).catch((err) => {
+      if (err.status === 409)
+        showMessage(err.response.data.message, "Registration error")
+      else
+        showMessage(err.message, "Registration error")
+    })
   }
 
   const handleLogout = () => {
+    setAuthToken(null)
     localStorage.removeItem("userInfo")
     setUserInfo(null)
   }
@@ -69,7 +79,7 @@ const MainLayout: React.FC = () => {
   }
 
   React.useEffect(() => {
-    setResetTrigger((prev) => prev++)
+    setResetTrigger((prev) => prev + 1)
     setIsModalVisible(false);
   }, [userInfo]);
 
@@ -116,33 +126,3 @@ const MainLayout: React.FC = () => {
 }
 
 export default MainLayout
-
-
-
-/*import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/login';
-import Dashboard from './pages/dashboard';
-import Arrive from './pages/arrive';
-import Depart from './pages/depart';
-import '@ant-design/v5-patch-for-react-19';
-
-function PrivateRoute({ children }) {
-  return localStorage.getItem('token') ? children : <Navigate to="/login" />;
-}
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/arrive" element={<PrivateRoute><Arrive /></PrivateRoute>} />
-        <Route path="/depart" element={<PrivateRoute><Depart /></PrivateRoute>} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-*/

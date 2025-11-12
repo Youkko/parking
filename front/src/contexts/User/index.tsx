@@ -3,6 +3,9 @@ import type {
   UserInfo,
   UserContextType,
 } from '../../interfaces'
+import {
+  setAuthToken,
+} from "../../components/Api"
 import { createContext, useContext, useState, useEffect } from 'react'
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -15,11 +18,15 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     const storedUser = localStorage.getItem("userInfo")
     if (storedUser) {
       try {
-        setUserInfo(JSON.parse(storedUser))
+        const user: UserInfo = JSON.parse(storedUser)
+        setAuthToken(user.authorization)
+        setUserInfo(user)
       } catch {
+        setAuthToken(null)
         setUserInfo(null)
       }
     } else {
+      setAuthToken(null)
       setUserInfo(null)
     }
   }, [])

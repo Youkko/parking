@@ -57,6 +57,6 @@ def login():
     if not user or not user.check_password(password):
         return jsonify({'message': 'Invalid credentials'}), 401
 
-    additional_claims = {"email": user.email, "created_at": user.created_at.isoformat()}
+    additional_claims = {"id": user.id, "email": user.email, "created_at": user.created_at.isoformat()}
     access_token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
     return jsonify(access_token=access_token), 200

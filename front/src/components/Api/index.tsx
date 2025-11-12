@@ -2,6 +2,9 @@ import type { AxiosResponse } from "axios"
 import type {
   LoginInfo,
   LoginResponse,
+  RegisterResponse,
+  ArriveResponse,
+  DepartResponse,
   UserInfo,
   JwtPayload,
   ParkingInfo,
@@ -44,7 +47,7 @@ export const login = async (
 
 export const register = async (
   registerInfo: LoginInfo
-): Promise<AxiosResponse<{ message: string }>> => {
+): Promise<AxiosResponse<RegisterResponse>> => {
   return axios.post(`${API_URL}/auth/register`, registerInfo)
 }
 
@@ -52,10 +55,10 @@ export const getMovements = (): Promise<AxiosResponse<ParkingInfo[]>> => {
   return axios.get(`${API_URL}/park/`);
 }
 
-export const arrive = (plate: string): Promise<AxiosResponse<any>> => {
+export const arrive = (plate: string): Promise<AxiosResponse<ArriveResponse>> => {
   return axios.post(`${API_URL}/park/arrive`, { plate })
 }
 
-export const depart = (plate: string): Promise<AxiosResponse<any>> => {
-  return axios.post(`${API_URL}/park/depart`, { plate })
+export const depart = (plate: string): Promise<AxiosResponse<DepartResponse>> => {
+  return axios.patch(`${API_URL}/park/depart`, { plate })
 }

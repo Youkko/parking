@@ -66,7 +66,7 @@ const CredentialsPanel: React.FC<CredentialsPanelProps> = (
       title: getTitle(),
       content: <Text>{text}</Text>,
       okText: "Close",
-    });
+    })
   }
 
   const handleCancel = () => {
@@ -75,10 +75,11 @@ const CredentialsPanel: React.FC<CredentialsPanelProps> = (
 
   React.useEffect(() => {
     if (visible) {
-      setEmail("");
-      setPassword("");
+      setEmail("")
+      setPassword("")
+      setPasswordConfirm("")
     }
-  }, [resetFieldsTrigger, visible]);
+  }, [resetFieldsTrigger, visible])
 
   return (
     <>

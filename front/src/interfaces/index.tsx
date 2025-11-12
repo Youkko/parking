@@ -45,6 +45,18 @@ export interface LoginResponse {
   access_token: string
 }
 
+export interface ArriveResponse {
+  message: string
+}
+
+export interface DepartResponse {
+  message: string
+}
+
+export interface RegisterResponse {
+  message: string
+}
+
 export interface UserInfo {
   id: string
   email: string
