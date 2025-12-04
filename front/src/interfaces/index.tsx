@@ -72,3 +72,17 @@ export interface UserContextType {
   userInfo: UserInfo | null;
   setUserInfo: React.Dispatch<React.SetStateAction<UserInfo | null>>;
 }
+
+export interface ChatWidgetProps {
+  onSend: (message: ChatMessage) => Promise<ChatResponse | void>
+}
+
+export interface ChatMessage {
+  sender: "user" | "bot"
+  prompt: string
+}
+
+export interface ChatResponse {
+  assistant: string
+  raw_response: string
+}

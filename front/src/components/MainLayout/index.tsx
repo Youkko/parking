@@ -5,10 +5,12 @@ import TopBar from '../TopBar'
 import CredentialsPanel from '../CredentialsPanel'
 import ContentPanel from '../ContentPanel'
 import Dashboard from "../Page/Dashboard"
+import ChatWidget from "../ChatWidget"
 import {
   setAuthToken,
   login,
-  register
+  register,
+  chat
 } from "../Api"
 import {
   Layout,
@@ -18,6 +20,10 @@ import {
   theme,
 } from "antd";
 import { purple } from "@ant-design/colors";
+import type {
+  ChatMessage,
+  ChatResponse
+} from "../../interfaces"
 const { Text } = Typography;
 
 const MainLayout: React.FC = () => {
@@ -70,6 +76,73 @@ const MainLayout: React.FC = () => {
     showMessage("Feature to edit user info coming soon!", "Edit User Info")
   }
 
+  const handleChat = async (
+    chatMessage: ChatMessage
+  ): Promise<void | ChatResponse> => {
+    return chat(chatMessage.prompt).then((response) => {
+      return { assistant: response.data.assistant, raw_response: response.data.raw_response }
+    }).catch((err) => {
+      console.error("Chat error:", err)
+    })
+  }
+
+/*
+  export const login = async (
+    loginInfo: LoginInfo
+  ): Promise<UserInfo | null> => {
+    const response: AxiosResponse<LoginResponse> = await axios.post(
+      `${API_URL}/auth/login`,
+      loginInfo
+    )
+    try
+    {
+      const responseData: LoginResponse = response.data
+      const token = responseData.access_token
+      const decoded: JwtPayload = jwtDecode(token)
+      const user: UserInfo = {
+        id: decoded.id,
+        email: decoded.email,
+        createdAt: decoded.created_at,
+        authorization: token,
+      }
+      return user
+    }
+    catch
+    {
+      return null
+    }
+  }
+
+
+  const sendMessage = async () => {
+    if (!input.trim()) return
+
+    const userMessage = input.trim()
+    setMessages((msgs) => [...msgs, { sender: "user", content: userMessage }])
+    setInput("")
+    setLoading(true)
+
+    try {
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: userMessage }),
+      })
+      const data: ChatResponse = await response.json()
+      const botMessage = data.assistant || "No response from bot."
+
+      setMessages((msgs) => [...msgs, { sender: "bot", content: botMessage }])
+    } catch (error) {
+      setMessages((msgs) => [
+        ...msgs,
+        { sender: "bot", content: `Error: Could not reach chatbot service. (${error})` },
+      ])
+    } finally {
+      setLoading(false)
+    }
+  }
+*/
+
   const showMessage = (text: string, title: string) => {
     modal.info({
       title: title,
@@ -110,6 +183,9 @@ const MainLayout: React.FC = () => {
           <ContentPanel>
             {currentPage}
           </ContentPanel>
+          <ChatWidget
+            onSend={handleChat}
+          />
         </Layout>
         <CredentialsPanel
           onLogin={handleLogin}

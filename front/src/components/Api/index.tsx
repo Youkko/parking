@@ -5,6 +5,7 @@ import type {
   RegisterResponse,
   ArriveResponse,
   DepartResponse,
+  ChatResponse,
   UserInfo,
   JwtPayload,
   ParkingInfo,
@@ -61,4 +62,8 @@ export const arrive = (plate: string): Promise<AxiosResponse<ArriveResponse>> =>
 
 export const depart = (plate: string): Promise<AxiosResponse<DepartResponse>> => {
   return axios.patch(`${API_URL}/park/depart`, { plate })
+}
+
+export const chat = (prompt: string): Promise<AxiosResponse<ChatResponse>> => {
+  return axios.post(`${API_URL}/chat/`, { prompt })
 }
