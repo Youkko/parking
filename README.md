@@ -6,7 +6,7 @@ This is a small demo for a parking lot management system, which has (or will hav
 
 * Account creation and authentication
 * Vehicle access control and billing
-* Gemma AI-driven chatbot
+* Gemma 3 AI-driven chatbot
 
 ## Techincal Characteristics
 
@@ -28,6 +28,7 @@ DATABASE=postgres
 JWT_SECRET_KEY=insert-a-super-secure-secret-for-your-tokens-here
 FLASK_APP=app/manage.py
 FLASK_ENV=production
+GEMMA_API_URL=http://host.docker.internal:11434/api/chat
 ```
 
 **Note:** your database connection info here should match the ones on db section inside docker-compose.yml file. The SQL_HOST variable should not be changed, since it's referring to docker's database hosting image.
@@ -62,3 +63,35 @@ Made with React using Vite + Ant Design, it allows the user to list vehicle traf
 When a user is logged in, the top bar will show the logged-in user email, with 2 buttons near it: Edit Info, which will allow user to change it's account password, and Logoff, which will clear user info from session.
 
 When no user is logged in, the top bar will display 2 buttons: Register, which will allow account creation, and Login, used to identify yourself to the system and access protected features.
+
+### Chatbot
+
+When docker compose is loading, it'll create a ollama server, which will download Gemma 3 1B model. It'll be available externally on `http://localhost:12434` - the message "Ollama is running" is expected to show up when accessing this URL on browser.
+
+To confirm which model is loaded, access `http://localhost:12434/api/tags`. You should see the following json:
+
+```json
+{
+  "models": [
+    {
+      "name": "gemma3:1b-it-qat",
+      "model": "gemma3:1b-it-qat",
+      "modified_at": "2025-12-04T22:08:41.492860655Z",
+      "size": 1003539988,
+      "digest": "b491bd3989c65bf74267bfb9e7d5fd0bf7b6548bc12f91a98df3c56865ce2f80",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "gemma3",
+        "families": [
+          "gemma3"
+        ],
+        "parameter_size": "999.89M",
+        "quantization_level": "Q4_0"
+      }
+    }
+  ]
+}
+```
+
+However, if you see an empty array, that means the model is still being downloaded. The chatbot will only be fully functional after model download is complete and you see the above output.
