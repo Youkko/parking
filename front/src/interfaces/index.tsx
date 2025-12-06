@@ -1,8 +1,12 @@
+import type { SetStateAction, Dispatch } from "react"
+
 export interface TopBarProps {
   handleLogout: () => void
   handleEditUserInfo: () => void
   showModal: () => void
   setLoginMode: (isLogin: boolean) => void
+  userEditInfo: UserInfoWithVehicles | null
+  setUserEditInfo: Dispatch<SetStateAction<UserInfoWithVehicles | null>>
 }
 
 export interface ContentPanelProps {
@@ -14,6 +18,16 @@ export interface CredentialsPanelProps {
   onRegister: (email: string, password: string) => void
   onCancel: () => void
   isLoginMode: boolean
+  visible: boolean
+  resetFieldsTrigger: number
+}
+
+export interface InfoEditorProps {
+  onSave: (name: string, email: string, password: string, newpassword: string) => void
+  onCancel: () => void
+  onDelete: () => void
+  setUserEditInfo: Dispatch<SetStateAction<UserInfoWithVehicles | null>>
+  userEditInfo?: UserInfoWithVehicles | null
   visible: boolean
   resetFieldsTrigger: number
 }
@@ -57,11 +71,25 @@ export interface RegisterResponse {
   message: string
 }
 
+export interface EditResponse {
+  message: string
+}
+
 export interface UserInfo {
   id: string
   email: string
   createdAt: string
   authorization: string
+}
+
+export interface PriceInfo {
+  id: string
+  description: string
+  grace: number
+  value_day: number
+  value_hour: number
+  value_fraction: number
+  created_at: string
 }
 
 export interface UserProviderProps {
@@ -85,4 +113,26 @@ export interface ChatMessage {
 export interface ChatResponse {
   assistant: string
   raw_response: string
+}
+
+export interface UserInfoWithVehicles {
+  id: string
+  name: string
+  email: string
+  createdAt: string
+  vehicles: Vehicle[]
+}
+
+export interface Vehicle {
+  plate: string
+  isMotorcycle: boolean
+  isActive: string
+  createdAt: string
+}
+
+export interface UserData {
+  name: string | null
+  email: string
+  password: string
+  newPassword: string | null
 }

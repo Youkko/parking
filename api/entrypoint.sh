@@ -39,5 +39,10 @@ flask db upgrade || {
 
 echo "Database is up to date."
 
+echo "Applying database seed..."
+flask seed-prices || {
+  echo "Seeding failed."
+}
+
 echo "Launching Flask app..."
 exec "$@"

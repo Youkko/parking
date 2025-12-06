@@ -7,7 +7,7 @@ import {
   Space,
 } from "antd"
 import {
-  UserOutlined,
+  MailOutlined,
 } from "@ant-design/icons"
 const { Text } = Typography
 
@@ -94,7 +94,7 @@ const CredentialsPanel: React.FC<CredentialsPanelProps> = (
       >
         <Space direction="vertical" style={{ width: "100%" }}>
           <Input
-            prefix={<UserOutlined />}
+            prefix={<MailOutlined />}
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}

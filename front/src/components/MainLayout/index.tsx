@@ -6,11 +6,14 @@ import CredentialsPanel from '../CredentialsPanel'
 import ContentPanel from '../ContentPanel'
 import Dashboard from "../Page/Dashboard"
 import ChatWidget from "../ChatWidget"
+import InfoEditorPanel from "../EditInfoPanel"
 import {
   setAuthToken,
   login,
   register,
-  chat
+  chat,
+  getUserData,
+  setUserData,
 } from "../Api"
 import {
   Layout,
@@ -22,20 +25,25 @@ import {
 import { purple } from "@ant-design/colors";
 import type {
   ChatMessage,
-  ChatResponse
+  ChatResponse,
+  UserInfoWithVehicles,
 } from "../../interfaces"
 const { Text } = Typography;
 
 const MainLayout: React.FC = () => {
   const { userInfo, setUserInfo } = useUser()
-  
   const [modal, contextHolder] = Modal.useModal()
   const [currentPage, setPage] = useState<React.ReactNode>(<Dashboard />)
+  const [userEditInfo, setUserEditInfo] = useState<UserInfoWithVehicles | null>(null)
   const [isLoginMode, setLoginMode] = useState(true)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [isEditorVisible, setIsEditorVisible] = useState(false)
   const [resetTrigger, setResetTrigger] = useState(0)
+  const [resetEditorTrigger, setResetEditorTrigger] = useState(0)
   const showModal = () => setIsModalVisible(true)
+  const showEditorModal = () => setIsEditorVisible(true)
   const handleCancel = () => setIsModalVisible(false)
+  const handleEditCancel = () => setIsEditorVisible(false)
 
   const handleLogin = async (email: string, password: string) => {
     login({ email, password }).then((user) => {
@@ -73,7 +81,34 @@ const MainLayout: React.FC = () => {
   }
 
   const handleEditUserInfo = () => {
-    showMessage("Feature to edit user info coming soon!", "Edit User Info")
+    showEditorModal()
+  }
+
+  const handleSaveUserInfo = (
+    name: string | null,
+    email: string,
+    password: string,
+    newPassword: string | null) => {
+    
+    setUserData({ name, email, password, newPassword }).then((response) => {
+      showMessage(response.data.message, "User Info Update")
+      if (userEditInfo)
+      {
+        if (name) userEditInfo.name = name
+        if (email) userEditInfo.email = email
+        setUserEditInfo(userEditInfo)
+      }
+      setIsEditorVisible(false)
+    }).catch((err) => {
+      if (err.status === 409)
+        showMessage(err.response.data.message, "User Info Update Error")
+      else
+        showMessage(err.message, "User Info Update Error")
+    })
+  }
+
+  const handleDelete = () => {
+    showMessage("Feature to delete user account coming soon!", "Delete User Account")
   }
 
   const handleChat = async (
@@ -86,63 +121,6 @@ const MainLayout: React.FC = () => {
     })
   }
 
-/*
-  export const login = async (
-    loginInfo: LoginInfo
-  ): Promise<UserInfo | null> => {
-    const response: AxiosResponse<LoginResponse> = await axios.post(
-      `${API_URL}/auth/login`,
-      loginInfo
-    )
-    try
-    {
-      const responseData: LoginResponse = response.data
-      const token = responseData.access_token
-      const decoded: JwtPayload = jwtDecode(token)
-      const user: UserInfo = {
-        id: decoded.id,
-        email: decoded.email,
-        createdAt: decoded.created_at,
-        authorization: token,
-      }
-      return user
-    }
-    catch
-    {
-      return null
-    }
-  }
-
-
-  const sendMessage = async () => {
-    if (!input.trim()) return
-
-    const userMessage = input.trim()
-    setMessages((msgs) => [...msgs, { sender: "user", content: userMessage }])
-    setInput("")
-    setLoading(true)
-
-    try {
-      const response = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: userMessage }),
-      })
-      const data: ChatResponse = await response.json()
-      const botMessage = data.assistant || "No response from bot."
-
-      setMessages((msgs) => [...msgs, { sender: "bot", content: botMessage }])
-    } catch (error) {
-      setMessages((msgs) => [
-        ...msgs,
-        { sender: "bot", content: `Error: Could not reach chatbot service. (${error})` },
-      ])
-    } finally {
-      setLoading(false)
-    }
-  }
-*/
-
   const showMessage = (text: string, title: string) => {
     modal.info({
       title: title,
@@ -153,8 +131,21 @@ const MainLayout: React.FC = () => {
 
   React.useEffect(() => {
     setResetTrigger((prev) => prev + 1)
+    setResetEditorTrigger((prev) => prev + 1)
     setIsModalVisible(false);
-  }, [userInfo]);
+    setIsEditorVisible(false);
+    if (!userEditInfo)
+    {
+      setTimeout(() => {
+        getUserData().then((response) => {
+          console.log(response.data)
+          setUserEditInfo(response.data)
+        }).catch((err) => {
+          console.info("Trying to get user data - ", err.message)
+        })        
+      }, 500)
+    }
+  }, [userInfo, setUserEditInfo, userEditInfo]);
 
   React.useEffect(() => {
     
@@ -175,6 +166,8 @@ const MainLayout: React.FC = () => {
           handleEditUserInfo={handleEditUserInfo}
           showModal={showModal}
           setLoginMode={setLoginMode}
+          userEditInfo={userEditInfo}
+          setUserEditInfo={setUserEditInfo}
         />
         <Layout>
           <LeftMenu
@@ -194,6 +187,18 @@ const MainLayout: React.FC = () => {
           isLoginMode={isLoginMode}
           visible={isModalVisible}
           resetFieldsTrigger={resetTrigger}
+        />
+        <InfoEditorPanel
+          onSave={handleSaveUserInfo}
+          onCancel={handleEditCancel}
+          onDelete={handleDelete}
+          setUserEditInfo={setUserEditInfo}
+          userEditInfo={userEditInfo}
+          visible={isEditorVisible}
+          resetFieldsTrigger={resetEditorTrigger}
+        />
+        <ChatWidget
+          onSend={handleChat}
         />
       </Layout>
       {contextHolder}

@@ -24,7 +24,8 @@ const TopBar: React.FC<TopBarProps> = (
     handleLogout,
     handleEditUserInfo,
     showModal,
-    setLoginMode
+    setLoginMode,
+    userEditInfo,
   }
 ) => {
   const { userInfo } = useUser()
@@ -41,7 +42,6 @@ const TopBar: React.FC<TopBarProps> = (
   const showEditUserInfo = () => {
     handleEditUserInfo()
   }
-
 
   const logOut = () => {
     handleLogout()
@@ -82,7 +82,7 @@ const TopBar: React.FC<TopBarProps> = (
         </>
       ) : (
         <>
-          <Text style={{ color: "#fff" }}>{userInfo.email}</Text>
+          <Text style={{ color: "#fff" }}>{userEditInfo?.name || userInfo.email}</Text>
           <Button
             icon={<EditOutlined />}
             onClick={showEditUserInfo}

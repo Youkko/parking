@@ -23,7 +23,7 @@ def create_app(config_object: str | object = None) -> Flask:
     supports_credentials=True,
     origins=["*"],
     #origins=["http://localhost:82"],
-    methods=["GET", "POST", "PATCH", "OPTIONS"],
+    methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
     expose_headers=["Authorization"]
   )
@@ -37,6 +37,9 @@ def create_app(config_object: str | object = None) -> Flask:
   })
 
   db.init_app(app)
+
+  from app.models import User, Vehicle, Movement, Price
+
   migrate.init_app(app, db)
   jwt.init_app(app)
 
@@ -49,11 +52,10 @@ def create_app(config_object: str | object = None) -> Flask:
     app.logger.setLevel(app.config.get('LOG_LEVEL', logging.INFO))
 
   # Register blueprints
-  from app.routes.auth import auth
-  from app.routes.park import park
-  from app.routes.chat import chat
+  from app.routes import auth, user, park, chat
 
   app.register_blueprint(auth, url_prefix='/auth')
+  app.register_blueprint(user, url_prefix='/user')
   app.register_blueprint(park, url_prefix='/park')
   app.register_blueprint(chat, url_prefix='/chat')
 
@@ -65,5 +67,8 @@ def create_app(config_object: str | object = None) -> Flask:
     with app.app_context():
       db.create_all()
     current_app.logger.info("DB tables created.")
+
+  from app.commands.seed import seed_prices
+  app.cli.add_command(seed_prices)
 
   return app
